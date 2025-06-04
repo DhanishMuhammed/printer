@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Bluetooth Printer Test</title>
+
 </head>
 <body>
   <h2>Print to Bluetooth Thermal Printer</h2>
@@ -13,7 +14,8 @@
         const serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
         const characteristicUUID = '49535343-8841-43f4-a8d4-ecbe34729bb3';
 
-        // ✅ Accept all devices, but request our custom service later
+        let  details="  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae.  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae.  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae.  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae.  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae."
+      
         const device = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
           optionalServices: [serviceUUID]
@@ -25,9 +27,9 @@
 
         const encoder = new TextEncoder();
         const escAlignCenter = '\x1B\x61\x01';
-        const text = 'Hello World i dont need a ny  think jncesc dvniuervjiejvieovoienvionerveriovn  jnvuiviojweiv\n\n';
+        const text = '\n\n';
         const cutPaper = '\x1D\x56\x00';
-        const data = encoder.encode(escAlignCenter + text + cutPaper);
+        const data = encoder.encode(escAlignCenter + details+'\n\n' + cutPaper);
 
         await characteristic.writeValue(data);
         alert('Printed successfully!');
