@@ -59,60 +59,75 @@
       document.getElementById("invoicePreview").textContent = preview;
     }
 
-    async function connectAndPrint() {
-      if (items.length === 0) {
-        alert("No items to print.");
-        return;
-      }
+  async function connectAndPrint() {
+  if (items.length === 0) {
+    alert("No items to print.");
+    return;
+  }
 
-      const serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
-      const characteristicUUID = '49535343-8841-43f4-a8d4-ecbe34729bb3';
+  const serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
+  const characteristicUUID = '49535343-8841-43f4-a8d4-ecbe34729bb3';
 
-      let invoice = "\x1B\x61\x01" + "My Shop\n\n" + "\x1B\x61\x00"; // center, then left align
-      invoice += "\x1B\x61\x01" +"My address on the borard\n\n" +"\x1B\x61\x00";  //to get rigth
-      invoice += "\x1B\x61\x01" +"soudi alarab ,taliya\n\n" +"\x1B\x61\x00";  //to get rigth
-      invoice += "\x1B\x61\x01" +"phone :403256768\n\n" +"\x1B\x61\x00";  //to get rigth
-      invoice += "\x1B\x61\x01" +"VAT:89255UYR5772\n\n" +"\x1B\x61\x00";  //to get rigth
-      invoice += "Item        Qty   Price   amount\n";
-      invoice += "---------------------------------\n";
+  // Header Section - Center aligned
+  let invoice = "\x1B\x61\x01"; // Center align
+  invoice += "My Shop\n";
+  invoice += "My address on the board\n";
+  invoice += "Saudi Arabia, Taliya\n";
+  invoice += "Phone: 403256768\n";
+  invoice += "VAT: 89255UYR5772\n\n";
 
-      let total = 0;
-      items.forEach(item => {
-        invoice += `${item.name.padEnd(12)} ${item.qty.toString().padEnd(4)} ${item.price.toFixed(2)} ${item.qty*item.price.toFixed(2)}\n`;
-        total += item.qty * item.price;
-      });
+  // Items section - Left aligned
+  invoice += "\x1B\x61\x00"; // Left align
+  invoice += "Item         Qty  Price   Amount\n";
+  invoice += "----------------------------------\n";
 
-      invoice += "-------------------------\n";
-      invoice += `Total:           ${total.toFixed(2)}\n\n\n`;
-      invoice += "\x1B\x61\x01" +"Thank You for purchaise\n\n" +"\x1B\x61\x00";  //to get rigth
-      invoice += "\x1D\x56\x00"; // cut paper
+  let total = 0;
+  items.forEach(item => {
+    const amount = item.qty * item.price;
+    invoice += `${item.name.padEnd(12).substring(0, 12)} ` +
+               `${item.qty.toString().padEnd(4)} ` +
+               `${item.price.toFixed(2).padEnd(7)} ` +
+               `${amount.toFixed(2)}\n`;
+    total += amount;
+  });
 
-      try {
-        const device = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [serviceUUID]
-        });
+  invoice += "----------------------------------\n";
+  invoice += `Total:                      ${total.toFixed(2)}\n\n`;
 
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService(serviceUUID);
-        const characteristic = await service.getCharacteristic(characteristicUUID);
+  // Footer - Center align again
+  invoice += "\x1B\x61\x01"; // Center align
+  invoice += "Thank you for your purchase!\n\n";
 
-        const encoder = new TextEncoder();
-        const encoded = encoder.encode(invoice);
+  // Cut paper
+  invoice += "\x1D\x56\x00";
 
-        // Split and send in 20-byte chunks
-        const chunkSize = 20;
-        for (let i = 0; i < encoded.length; i += chunkSize) {
-          const chunk = encoded.slice(i, i + chunkSize);
-          await characteristic.writeValue(chunk);
-        }
+  try {
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [serviceUUID]
+    });
 
-        alert('Invoice printed successfully!');
-      } catch (error) {
-        console.error(error);
-        alert('Printing failed: ' + error.message);
-      }
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(serviceUUID);
+    const characteristic = await service.getCharacteristic(characteristicUUID);
+
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(invoice);
+
+    // Send in 20-byte chunks
+    const chunkSize = 20;
+    for (let i = 0; i < encoded.length; i += chunkSize) {
+      const chunk = encoded.slice(i, i + chunkSize);
+      await characteristic.writeValue(chunk);
     }
+
+    alert('Invoice printed successfully!');
+  } catch (error) {
+    console.error(error);
+    alert('Printing failed: ' + error.message);
+  }
+}
+
   </script>
 </body>
 </html>
