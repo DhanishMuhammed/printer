@@ -28,6 +28,7 @@
         const text = '\x1B\x61\x01' + // ESC a 1 = center align
           'Hello World! Here is a long paragraph printed on thermal printer via BLE.\n\n' +
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n' +
+          'i need print also .\n\n'
           '\x1D\x56\x00'; // Cut paper
 
         const data = encoder.encode(text);
