@@ -5,7 +5,7 @@
 </head>
 <body>
   <h2>Print to Bluetooth Thermal Printer</h2>
-  <button onclick="connectAndPrint()">Print 'Hello World'</button>
+  <button onclick="connectAndPrint()">Print Large Data</button>
 
   <script>
     async function connectAndPrint() {
@@ -13,8 +13,6 @@
         const serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
         const characteristicUUID = '49535343-8841-43f4-a8d4-ecbe34729bb3';
 
-        let  details="l"
-      
         const device = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
           optionalServices: [serviceUUID]
@@ -25,12 +23,28 @@
         const characteristic = await service.getCharacteristic(characteristicUUID);
 
         const encoder = new TextEncoder();
-        const escAlignCenter = '\x1B\x61\x01';
-        const text = 'Hello World i dont need a ny  think jncesc dvniuervjiejvieovoienvionerveriovn  jnvuiviojweiv\n\n';
-        const cutPaper = '\x1D\x56\x00';
-        const data = encoder.encode(escAlignCenter + text + cutPaper);
 
-        await characteristic.writeValue(data);
+        // Your long text to print
+        const text = '\x1B\x61\x01' + // ESC a 1 = center align
+          'Hello World! Here is a long paragraph printed on thermal printer via BLE.\n\n' +
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n' +
+          '\x1D\x56\x00'; // Cut paper
+
+        const data = encoder.encode(text);
+
+        // Function to send data in chunks
+        async function writeLargeData(characteristic, data) {
+          const chunkSize = 20;
+          for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await characteristic.writeValue(chunk);
+            // Optional delay, uncomment if printer misses data:
+            // await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+
+        await writeLargeData(characteristic, data);
+
         alert('Printed successfully!');
       } catch (error) {
         console.error(error);
