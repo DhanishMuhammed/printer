@@ -10,29 +10,30 @@
   <script>
     async function connectAndPrint() {
       try {
-        const serviceUUID = 'E7810A71-73AE-499D-8C15-FAA9AEF0C3F2';
-        const characteristicUUID = '49535343-1E4D-4BD9-BA61-23C647249616';
+        // ✅ Use lowercase UUIDs
+        const serviceUUID = 'e7810a71-73ae-499d-8c15-faa9aef0c3f2';
+        const characteristicUUID = '49535343-1e4d-4bd9-ba61-23c647249616';
 
-        // 1. Request device
+        // 1. Request the BLE printer device
         const device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [serviceUUID] }]
         });
 
-        // 2. Connect to GATT server
+        // 2. Connect to the device’s GATT server
         const server = await device.gatt.connect();
 
-        // 3. Get service and characteristic
+        // 3. Get the BLE service and characteristic
         const service = await server.getPrimaryService(serviceUUID);
         const characteristic = await service.getCharacteristic(characteristicUUID);
 
-        // 4. Prepare ESC/POS data
+        // 4. Prepare print data in ESC/POS format
         const encoder = new TextEncoder();
-        const escAlignCenter = '\x1B\x61\x01';  // ESC a 1 = center
+        const escAlignCenter = '\x1B\x61\x01';  // Center align
         const text = 'Hello World\n\n';
-        const cutPaper = '\x1D\x56\x00';        // Full cut
+        const cutPaper = '\x1D\x56\x00';        // Cut command
         const data = encoder.encode(escAlignCenter + text + cutPaper);
 
-        // 5. Write data
+        // 5. Write the data to the printer
         await characteristic.writeValue(data);
 
         alert('Printed successfully!');
