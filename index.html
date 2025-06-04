@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bluetooth Printer Test</title>
+</head>
+<body>
+  <h2>Print to Bluetooth Thermal Printer</h2>
+  <button onclick="connectAndPrint()">Print 'Hello World'</button>
+
+  <script>
+    async function connectAndPrint() {
+      try {
+        // 1. Ask the user to select a nearby Bluetooth printer
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'Printer' }], // or remove filters to show all
+          optionalServices: [0xFFE0] // Replace with your printer's service UUID if known
+        });
+
+        // 2. Connect to the device
+        const server = await device.gatt.connect();
+
+        // 3. Get the primary service and characteristic
+        const service = await server.getPrimaryService(0xFFE0); // Your printer's primary BLE service
+        const characteristic = await service.getCharacteristic(0xFFE1); // Your printer's write characteristic
+
+        // 4. ESC/POS commands: Center align + "Hello World" + feed + cut
+        const encoder = new TextEncoder();
+        const escAlignCenter = '\x1B\x61\x01'; // ESC a 1 = center align
+        const text = 'Hello World\n\n';
+        const cutPaper = '\x1D\x56\x00'; // Cut command
+        const data = encoder.encode(escAlignCenter + text + cutPaper);
+
+        // 5. Write to printer
+        await characteristic.writeValue(data);
+
+        alert('Printed successfully!');
+      } catch (error) {
+        console.error(error);
+        alert('Printing failed: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
