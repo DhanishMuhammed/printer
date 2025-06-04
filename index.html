@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Bluetooth Printer Test</title>
-
 </head>
 <body>
   <h2>Print to Bluetooth Thermal Printer</h2>
@@ -27,7 +26,7 @@
 
         const encoder = new TextEncoder();
         const escAlignCenter = '\x1B\x61\x01';
-        const text = '  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae.  Lorem ipsum dolor sit amet consectetur adipisicing elit. Est repudiandae ratione delectus numquam dicta? Eos magni impedit voluptate deserunt id libero minima. Velit quidem hic eos sit, ullam fuga beatae.\n\n';
+        const text = 'Hello World i dont need a ny  think jncesc dvniuervjiejvieovoienvionerveriovn  jnvuiviojweiv\n\n';
         const cutPaper = '\x1D\x56\x00';
         const data = encoder.encode(escAlignCenter + text + cutPaper);
 
