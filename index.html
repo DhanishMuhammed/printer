@@ -1,30 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Print Invoice to Bluetooth Printer</title>
+  <title>Dynamic Invoice Printer</title>
+  <style>
+    input { margin: 5px; }
+    #invoicePreview { white-space: pre; border: 1px solid #ccc; padding: 10px; width: 300px; margin-top: 10px; }
+  </style>
 </head>
 <body>
-  <h2>Print Invoice</h2>
-  <button onclick="connectAndPrint()">Print Invoice</button>
+  <h2>Invoice Builder</h2>
+
+  <input type="text" id="itemName" placeholder="Item Name" />
+  <input type="number" id="itemQty" placeholder="Qty" />
+  <input type="number" id="itemPrice" placeholder="Price" />
+  <button onclick="addItem()">Add Item</button>
+
+  <div id="invoicePreview"></div>
+
+  <button onclick="connectAndPrint()">🖨️ Print Invoice</button>
 
   <script>
-    const invoice =
-      '\x1B\x61\x01' + // center align
-      'My Shop\n' +
-      '\x1B\x61\x00' + // left align
-      'Item    Qty   Price\n' +
-      'Apple    2    20.00\n' +
-      'Banana   3    30.00\n' +
-      '-------------------\n' +
-      'Total:        50.00\n' +
-      '\n\n' +
-      '\x1D\x56\x00';  // cut paper
+    let items = [];
+
+    function addItem() {
+      const name = document.getElementById("itemName").value.trim();
+      const qty = parseInt(document.getElementById("itemQty").value);
+      const price = parseFloat(document.getElementById("itemPrice").value);
+
+      if (!name || isNaN(qty) || isNaN(price)) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      items.push({ name, qty, price });
+      document.getElementById("itemName").value = "";
+      document.getElementById("itemQty").value = "";
+      document.getElementById("itemPrice").value = "";
+
+      updatePreview();
+    }
+
+    function updatePreview() {
+      let preview = "Item        Qty   Price\n";
+      preview += "-------------------------\n";
+      let total = 0;
+      items.forEach(item => {
+        preview += `${item.name.padEnd(12)} ${item.qty.toString().padEnd(4)} ${item.price.toFixed(2)}\n`;
+        total += item.qty * item.price;
+      });
+      preview += "-------------------------\n";
+      preview += `Total:           ${total.toFixed(2)}`;
+      document.getElementById("invoicePreview").textContent = preview;
+    }
 
     async function connectAndPrint() {
-      try {
-        const serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
-        const characteristicUUID = '49535343-8841-43f4-a8d4-ecbe34729bb3';
+      if (items.length === 0) {
+        alert("No items to print.");
+        return;
+      }
 
+      const serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
+      const characteristicUUID = '49535343-8841-43f4-a8d4-ecbe34729bb3';
+
+      let invoice = "\x1B\x61\x01" + "My Shop\n\n" + "\x1B\x61\x00"; // Header + left align
+      invoice += "Item        Qty   Price\n";
+      invoice += "-------------------------\n";
+
+      let total = 0;
+      items.forEach(item => {
+        invoice += `${item.name.padEnd(12)} ${item.qty.toString().padEnd(4)} ${item.price.toFixed(2)}\n`;
+        total += item.qty * item.price;
+      });
+
+      invoice += "-------------------------\n";
+      invoice += `Total:           ${total.toFixed(2)}\n\n\n`;
+      invoice += "\x1D\x56\x00"; // Cut
+
+      try {
         const device = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
           optionalServices: [serviceUUID]
