@@ -10,27 +10,29 @@
   <script>
     async function connectAndPrint() {
       try {
-        // 1. Ask the user to select a nearby Bluetooth printer
+        const serviceUUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+        const characteristicUUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+
+        // 1. Request device
         const device = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: 'Printer' }], // or remove filters to show all
-          optionalServices: ["0000ffe0-0000-1000-8000-00805f9b34fb"] // Replace with your printer's service UUID if known
+          filters: [{ services: [serviceUUID] }]
         });
 
-        // 2. Connect to the device
+        // 2. Connect to GATT server
         const server = await device.gatt.connect();
 
-        // 3. Get the primary service and characteristic
-        const service = await server.getPrimaryService(0xFFE0); // Your printer's primary BLE service
-        const characteristic = await service.getCharacteristic(0xFFE1); // Your printer's write characteristic
+        // 3. Get service and characteristic
+        const service = await server.getPrimaryService(serviceUUID);
+        const characteristic = await service.getCharacteristic(characteristicUUID);
 
-        // 4. ESC/POS commands: Center align + "Hello World" + feed + cut
+        // 4. Prepare ESC/POS data
         const encoder = new TextEncoder();
-        const escAlignCenter = '\x1B\x61\x01'; // ESC a 1 = center align
+        const escAlignCenter = '\x1B\x61\x01';  // ESC a 1 = center
         const text = 'Hello World\n\n';
-        const cutPaper = '\x1D\x56\x00'; // Cut command
+        const cutPaper = '\x1D\x56\x00';        // Full cut
         const data = encoder.encode(escAlignCenter + text + cutPaper);
 
-        // 5. Write to printer
+        // 5. Write data
         await characteristic.writeValue(data);
 
         alert('Printed successfully!');
