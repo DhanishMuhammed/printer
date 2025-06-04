@@ -13,7 +13,7 @@
         // 1. Ask the user to select a nearby Bluetooth printer
         const device = await navigator.bluetooth.requestDevice({
           filters: [{ namePrefix: 'Printer' }], // or remove filters to show all
-          optionalServices: [0xFFE0] // Replace with your printer's service UUID if known
+          optionalServices: ["0000ffe0-0000-1000-8000-00805f9b34fb"] // Replace with your printer's service UUID if known
         });
 
         // 2. Connect to the device
