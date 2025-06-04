@@ -13,28 +13,23 @@
         const serviceUUID = 'e7810a71-73ae-499d-8c15-faa9aef0c3f2';
         const characteristicUUID = '49535343-1e4d-4bd9-ba61-23c647249616';
 
-        // 1. Request device
+        // ✅ Accept all devices, but request our custom service later
         const device = await navigator.bluetooth.requestDevice({
-          filters: [{ services: [serviceUUID] }]
+          acceptAllDevices: true,
+          optionalServices: [serviceUUID]
         });
 
-        // 2. Connect to GATT server
         const server = await device.gatt.connect();
-
-        // 3. Get service and characteristic
         const service = await server.getPrimaryService(serviceUUID);
         const characteristic = await service.getCharacteristic(characteristicUUID);
 
-        // 4. Prepare ESC/POS data
         const encoder = new TextEncoder();
-        const escAlignCenter = '\x1B\x61\x01';  // ESC a 1 = center
+        const escAlignCenter = '\x1B\x61\x01';
         const text = 'Hello World\n\n';
-        const cutPaper = '\x1D\x56\x00';        // Full cut
+        const cutPaper = '\x1D\x56\x00';
         const data = encoder.encode(escAlignCenter + text + cutPaper);
 
-        // 5. Write data
         await characteristic.writeValue(data);
-
         alert('Printed successfully!');
       } catch (error) {
         console.error(error);
