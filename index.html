@@ -47,15 +47,27 @@
     }
 
     function updatePreview() {
-      let preview = "Item        Qty   Price\n";
-      preview += "-------------------------\n";
+      let preview = "Item        Qty   Price    amount\n";
+      preview += "--------------------------------------\n";
       let total = 0;
-      items.forEach(item => {
-        preview += `${item.name.padEnd(12)} ${item.qty.toString().padEnd(4)} ${item.price.toFixed(2)}\n`;
-        total += item.qty * item.price;
-      });
-      preview += "-------------------------\n";
-      preview += `Total:           ${total.toFixed(2)}`;
+     items.forEach((item, index) => {
+  const amount = item.qty * item.price;
+
+  // First line: full item name
+  preview += `${item.name}\n`;
+
+  // Second line: index, qty, price, amount - aligned properly
+  const indexStr = ` .${index + 1}`.padEnd(10);            
+  const qtyStr = item.qty.toString().padStart(6);          
+  const priceStr = item.price.toFixed(2).padStart(10);     
+  const amountStr = amount.toFixed(2).padStart(10);       
+
+  preview += `${indexStr}${qtyStr}${priceStr}${amountStr}\n`;
+
+  total += amount;
+});
+      preview += "-----------------------------------\n";
+      preview += `Total:                      ${total.toFixed(2)}`;
       document.getElementById("invoicePreview").innerHTML = preview;
     }
 
@@ -89,10 +101,10 @@
   invoice += `${item.name}\n`;
 
   // Second line: index, qty, price, amount - aligned properly
-  const indexStr = ` .${index + 1}`.padEnd(10);            // " .1       "
-  const qtyStr = item.qty.toString().padStart(6);          // "     2"
-  const priceStr = item.price.toFixed(2).padStart(10);     // "   300.00"
-  const amountStr = amount.toFixed(2).padStart(10);        // "   600.00"
+  const indexStr = ` .${index + 1}`.padEnd(10);            
+  const qtyStr = item.qty.toString().padStart(6);          
+  const priceStr = item.price.toFixed(2).padStart(10);     
+  const amountStr = amount.toFixed(2).padStart(10);       
 
   invoice += `${indexStr}${qtyStr}${priceStr}${amountStr}\n`;
 
