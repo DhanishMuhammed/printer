@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  
   <title>Dynamic Invoice Printer</title>
   <style>
     input { margin: 5px; }
     #invoicePreview {
       white-space: pre;
-      
+      border: 1px solid #ccc;
       padding: 10px;
       width: 300px;
       margin-top: 10px;
@@ -22,9 +21,7 @@
   <input type="number" id="itemPrice" placeholder="Price" />
   <button onclick="addItem()">Add Item</button>
 
-  <div id="invoicePreview">
-
-  </div>
+  <div id="invoicePreview"></div>
 
   <button onclick="connectAndPrint()">🖨️ Print Invoice</button>
 
@@ -36,7 +33,7 @@
       const qty = parseInt(document.getElementById("itemQty").value);
       const price = parseFloat(document.getElementById("itemPrice").value);
 
-      if (!name || !qty || !price) {
+      if (!name || !(qty) || !(price)) {
         alert("Please fill all fields.");
         return;
       }
@@ -85,20 +82,14 @@
   invoice += "----------------------------------\n";
 
   let total = 0;
-  items.forEach((item, index) => {
-  const amount = item.qty * item.price;
-
-  // Print item name in full on the first line
-  invoice += `${item.name}\n`;
-
-  // Second line: index, qty, price, amount — aligned properly
-  invoice += ` .${index + 1}  ` +
-             `${item.qty.toString().padEnd(6)}` +
-             `${item.price.toFixed(2).padEnd(8)}` +
-             `${amount.toFixed(2)}\n`;
-
-  total += amount;
-});
+  items.forEach(item => {
+    const amount = item.qty * item.price;
+    invoice += `${item.name.padEnd(12).substring(0, 12)} ` +
+               `${item.qty.toString().padEnd(4)} ` +
+               `${item.price.toFixed(2).padEnd(7)} ` +
+               `${amount.toFixed(2)}\n`;
+    total += amount;
+  });
 
   invoice += "----------------------------------\n";
   invoice += `Total:                      ${total.toFixed(2)}\n\n`;
