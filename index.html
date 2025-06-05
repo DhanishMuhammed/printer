@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  
   <title>Dynamic Invoice Printer</title>
   <style>
     input { margin: 5px; }
@@ -22,24 +22,8 @@
   <input type="number" id="itemPrice" placeholder="Price" />
   <button onclick="addItem()">Add Item</button>
 
-  <div id="invoicePreview ">
- <!-- <div class="text-center">
-  <h4  class="">my shop</h4>
- <p>My address on the board <br>
- Saudi Arabia, Taliya <br>
- Phone: 403256768 <br>
- VAT: 89255UYR5772</p>
- </div>
+  <div id="invoicePreview">
 
- <div>
-  <table>
-    <thead>
-      <td>item</td>
-       <td>Qty</td>
-     <td>Price</td>
-    <td>Amount</td></thead>
-  </table>
- </div> -->
   </div>
 
   <button onclick="connectAndPrint()">🖨️ Print Invoice</button>
@@ -101,7 +85,7 @@
   invoice += "----------------------------------\n";
 
   let total = 0;
-  iitems.forEach((item, index) => {
+  items.forEach((item, index) => {
   const amount = item.qty * item.price;
 
   // Print item name in full on the first line
@@ -115,7 +99,6 @@
 
   total += amount;
 });
-
 
   invoice += "----------------------------------\n";
   invoice += `Total:                      ${total.toFixed(2)}\n\n`;
