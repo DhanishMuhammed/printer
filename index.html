@@ -82,17 +82,23 @@
   invoice += "----------------------------------\n";
 
   let total = 0;
-  items.forEach(item => {
-    const amount = item.qty * item.price;
-    
-    invoice += `${item.name.padEnd(12)}\n`
+ items.forEach((item, index) => {
+  const amount = item.qty * item.price;
 
-    invoice += 
-               `${item.qty.toString().padEnd(4)} ` +
-               `${item.price.toFixed(2).padEnd(7)} ` +
-               `${amount.toFixed(2)}\n`;
-    total += amount;
-  });
+  // First line: full item name
+  invoice += `${item.name}\n`;
+
+  // Second line: index, qty, price, amount - aligned properly
+  const indexStr = ` .${index + 1}`.padEnd(10);            // " .1       "
+  const qtyStr = item.qty.toString().padStart(6);          // "     2"
+  const priceStr = item.price.toFixed(2).padStart(10);     // "   300.00"
+  const amountStr = amount.toFixed(2).padStart(10);        // "   600.00"
+
+  invoice += `${indexStr}${qtyStr}${priceStr}${amountStr}\n`;
+
+  total += amount;
+});
+
 
   invoice += "----------------------------------\n";
   invoice += `Total:                      ${total.toFixed(2)}\n\n`;
